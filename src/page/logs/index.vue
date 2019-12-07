@@ -1,6 +1,8 @@
 <template>
   <avue-crud :data="logsList"
-             :option="option">
+             :option="option"
+             :expand-change="expandChange"
+             >
     <template slot="menuLeft">
       <el-button type="primary"
                  size="small"
@@ -17,7 +19,8 @@
               size="small">{{scope.label}}</el-tag>
     </template>
     <template slot-scope="props"
-              slot="expand">
+              slot="expand"
+              >
       <pre class="code">
         {{props.row.stack}}
       </pre>
@@ -77,6 +80,9 @@ export default {
       }).catch(() => {
 
       });
+    },
+    expandChange(){
+
     }
   }
 };

@@ -1,17 +1,15 @@
 import request from '@/router/axios';
-export const loginByUsername = (username, password, code, redomStr) => request({
-  url: '/user/login',
+export const loginByUsername = (username, password) => request({
+  url: '/auth/login',
   method: 'post',
   data: {
     username,
-    password,
-    code,
-    redomStr
+    password
   }
 })
 
 export const getUserInfo = () => request({
-  url: '/user/getUserInfo',
+  url: '/auth/info',
   method: 'get'
 });
 
@@ -21,17 +19,23 @@ export const RefeshToken = () => request({
 })
 
 export const getTopMenu = () => request({
-  url: '/user/getTopMenu',
-  method: 'get'
-});
-
-export const getMenu = (type = 0) => request({
-  url: '/user/getMenu',
+  url: '/menu/own',
   method: 'get',
-  data: {
-    type
+  params:{
+    type: 0
   }
 });
+
+// 待完成 需要完成查询对应用户的权限
+export const getMenu = (type = 1) => {
+  return request({
+    url: '/menu/own',
+    method: 'get',
+    params:{
+      type
+    }
+  })
+};
 
 export const getMenuAll = () => request({
   url: '/user/getMenu',
@@ -42,11 +46,8 @@ export const getMenuAll = () => request({
 });
 
 export const getTableData = (page) => request({
-  url: '/user/getTable',
-  method: 'get',
-  data: {
-    page
-  }
+  url: '/users',
+  method: 'get'
 });
 
 export const logout = () => request({

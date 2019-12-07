@@ -1,51 +1,35 @@
 <template>
   <div>
     <basic-container>
-      <avue-crud :option="tableOption"
-                 :data="tableData"
-                 :table-loading="tableLoading"
-                 :page="page"
-                 ref="crud"
-                 @row-save="handleSave"
-                 @row-update="handleUpdate"
-                 @row-del="handleDel">
-        <template slot-scope="scope"
-                  slot="menu">
-          <el-button icon="el-icon-check"
-                     size="small"
-                     @click="handleGrade(scope.row,scope.$index)">权限</el-button>
-        </template>
-      </avue-crud>
-      <el-dialog title="菜单"
-                 :visible.sync="grade.box"
-                 width="40%">
-        <el-tree :data="menuAll"
-                 :default-checked-keys="grade.check"
-                 :default-expanded-keys="grade.check"
-                 show-checkbox
-                 node-key="id"
-                 @check-change="handleGradeCheckChange">
-        </el-tree>
-        <span slot="footer"
-              class="dialog-footer">
-          <el-button type="primary"
-                     @click="handleGradeUpdate">更新</el-button>
-        </span>
-      </el-dialog>
+      <avue-crud
+        :option="tableOption"
+        :data="tableData"
+        :table-loading="tableLoading"
+        :page="page"
+        ref="crud"
+        @row-save="handleSave"
+        @row-update="handleUpdate"
+        @row-del="handleDel"
+      ></avue-crud>
     </basic-container>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import { getRoleData } from '@/api/admin'
+import {
+  getRoleData,
+  getMenuAll,
+  editRole,
+  delRole,
+  addRole
+} from "@/api/admin";
 import { roleOption } from "@/const/admin/adminTabelOption.js";
 export default {
   name: "role",
   components: {},
-  data () {
+  data() {
     return {
-      tableOption: {}, //表格设置属性
       tableData: [], //表格的数据
       tablePage: 1,
       tableLoading: false,
@@ -58,79 +42,165 @@ export default {
       grade: {
         box: false,
         check: []
-      }
+      },
+      query: {
+        limit: 10,
+        page: 1
+      },
+      menuAll: []
     };
   },
-  created () {
+  created() {
     //初始化数据格式
-    this.tableOption = roleOption;
     this.handleList();
   },
   watch: {},
-  mounted () { },
+  mounted() {},
   computed: {
-    ...mapGetters(["permission", "menuAll"])
+    ...mapGetters(["permission","userInfo"]),
+    tableOption() {
+      return {
+        title: "角色管理",
+        border: true,
+        align: "center",
+        menuAlign: "center",
+        index: true,
+        indexLabel: "序号",
+        printBtn: true,
+        excelBtn: true,
+        column: [
+          {
+            label: "角色名称",
+            prop: "name"
+          },
+          {
+            label: "创建人",
+            prop: "createUser"
+          },
+          {
+            label: "创建时间",
+            prop: "createdAt",
+            type: "date",
+            format: "yyyy-MM-dd HH:mm:ss",
+            valueFormat: "yyyy-MM-dd HH:mm:ss"
+          },
+          {
+            label: "角色描述",
+            prop: "description"
+          }
+        ],
+        group: [
+          {
+            column: [
+              {
+                label: "角色名称",
+                prop: "name",
+                type: "input",
+                rules: [
+                  {
+                    required: true,
+                    message: "请输入角色名称",
+                    trigger: "blur"
+                  }
+                ]
+              },
+              {
+                label: "角色描述",
+                prop: "description",
+                type: "input",
+                rules: [
+                  {
+                    required: true,
+                    message: "请输入角色描述",
+                    trigger: "blur"
+                  }
+                ]
+              },
+              {
+                label: "菜单权限",
+                prop: "menu",
+                type: "tree",
+                multiple: true,
+                dicUrl:'/menu/all',
+                props:{
+                  label: 'label',
+                  value: '_id'
+                },
+                rules: [
+                  {
+                    required: true,
+                    message: "请选择菜单权限"
+                  }
+                ],
+                span: 24
+              }
+            ]
+          }
+        ]
+      };
+    }
   },
   props: [],
   methods: {
     /**
      * @title 权限更新
-     *
+     *  TODO:
+     *  - 获取树中选中的ID
+     *  - 调用role的接口，更新角色的权限信息
+     *  - 关闭窗口，给予提示
+     * 1. grade.check负责树的选择
+     * 2. box 负责树的开关
+     * 3.
      **/
-    handleGradeUpdate () {
-      this.tabelObj.check = [].concat(this.grade.check);
+    async handleGradeUpdate() {
+      this.tabelObj.menu = [].concat(this.grade.check);
+      let obj = JSON.parse(JSON.stringify(this.tabelObj));
+      console.log(obj)
+      delete obj.$index;
+      delete obj.$menu
+      await editRole(obj);
+      this.$message.success("更新成功");
       this.tabelObj = {};
       this.grade.check = [];
       this.grade.box = false;
     },
     /**
      * @title 权限选择
-     *
+     * TODO: 将选中的数据的id加入到 grade.check中
      **/
-    handleGradeCheckChange (data, checked) {
+    handleGradeCheckChange(data, checked) {
       if (checked) {
-        this.grade.check.push(data.id);
+        this.grade.check.push(data._id);
       } else {
-        this.grade.check.splice(this.grade.check.indexOf(data.id), 1);
+        this.grade.check.splice(this.grade.check.indexOf(data._id), 1);
       }
     },
     /**
      * @title 打开权限
-     */
-    handleGrade (row) {
-      this.$store.dispatch("GetMenuAll").then(() => {
-        this.grade.box = true;
-        this.tabelObj = row;
-        this.grade.check = this.tabelObj.check;
-      });
-    },
-    /**
-     * @title 打开新增窗口
-     * @detail 调用crud的handleadd方法即可
+     *  TODO: tableObj 为选中当前的角色信息
      *
-     **/
-    handleAdd () {
-      this.$refs.crud.rowAdd();
+     */
+    handleGrade(row) {
+      getMenuAll().then(res => {
+        this.menuAll = res.data;
+        this.tabelObj = row;
+        this.grade.check = this.tabelObj.menu;
+        this.grade.box = true;
+      });
     },
     /**
      * @title 获取数据
      * @detail 赋值为tableData表格即可
      *
      **/
-    handleList () {
+    handleList() {
       this.tableLoading = true;
-      getRoleData({ page: `${this.tablePage}` })
-        .then(res => {
-          const data = res.data.data;
-          setTimeout(() => {
-            this.tableData = data.tableData;
-            this.page = {
-              total: data.total,
-              pageSize: data.pageSize
-            };
-            this.tableLoading = false;
-          }, 1000);
-        });
+      getRoleData(this.query).then(res => {
+        const data = res.data.data;
+        this.tableData = data;
+        this.page.total = res.data.total;
+        this.tableLoading = false;
+      });
     },
     /**
      * @title 数据添加
@@ -138,8 +208,13 @@ export default {
      * @param done 为表单关闭函数
      *
      **/
-    handleSave (row, done) {
-      this.tableData.push(row);
+    async handleSave(row, done) {
+      let rowData = JSON.parse(JSON.stringify(row))
+      delete rowData.$menu
+      rowData.createUser = this.userInfo.username
+      await addRole(rowData)
+      
+      this.handleList()
       this.$message({
         showClose: true,
         message: "添加成功",
@@ -153,21 +228,22 @@ export default {
      * @param index 为当前更新数据的行数
      *
      **/
-    handleDel (row, index) {
-      this.$confirm(`是否确认删除序号为${row.name}`, "提示", {
+    handleDel(row, index) {
+      this.$confirm(`是否确认删除 ${row.name}`, "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
-        .then(() => {
-          this.tableData.splice(index, 1);
+        .then(async () => {
+          await delRole(row._id);
           this.$message({
             showClose: true,
             message: "删除成功",
             type: "success"
           });
+          this.handleList();
         })
-        .catch(() => { });
+        .catch(() => {});
     },
     /**
      * @title 数据更新
@@ -176,14 +252,23 @@ export default {
      * @param done 为表单关闭函数
      *
      **/
-    handleUpdate (row, index, done) {
-      this.tableData.splice(index, 1, row);
+    async handleUpdate(row, index, done) {
+      let rowData = JSON.parse(JSON.stringify(row));
+      delete rowData.$index;
+      delete rowData.$menu
+      await editRole(rowData);
       this.$message({
         showClose: true,
         message: "修改成功",
         type: "success"
       });
+      this.handleList();
       done();
+    },
+    changePage({ pageSize, currentPage }) {
+      this.query.page = currentPage;
+      this.query.limit = pageSize;
+      this.handleList();
     }
   }
 };

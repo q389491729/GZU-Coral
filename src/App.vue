@@ -22,4 +22,7 @@ export default {
   height: 100%;
   overflow: hidden;
 }
+.el-table__empty-block{
+  min-height: 150px;
+}
 </style>

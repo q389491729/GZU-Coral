@@ -1,9 +1,10 @@
 import Mock from 'mockjs'
 export default ({ mock }) => {
     if (!mock) return;
-    // 用户登录
+    // 用户登录(已修改)
     Mock.mock('/user/login', 'post', {
-        data: new Date().getTime() + ''
+        data: new Date().getTime() + '',
+        token: new Date().getTime() + ''
     });
     //用户退出
     Mock.mock('/user/logout', 'get', {
@@ -13,7 +14,7 @@ export default ({ mock }) => {
     Mock.mock('/user/refesh', 'post', {
         data: new Date().getTime() + ''
     });
-    //获取用户信息
+    //获取用户信息 (已修改)
     Mock.mock('/user/getUserInfo', 'get', {
         data: {
             userInfo: {
@@ -35,7 +36,26 @@ export default ({ mock }) => {
                 'sys_role_btn5',
                 'sys_role_btn6',
             ], //权限级别
-        }
+        },
+        userInfo: {
+            username: 'admin',
+            name: 'avue',
+            avatar: 'https://gitee.com/uploads/61/632261_smallweigit.jpg',
+        },
+        roles: 'admin',
+        permission: [
+            'sys_crud_btn_add',
+            'sys_crud_btn_export',
+            'sys_menu_btn_add',
+            'sys_menu_btn_edit',
+            'sys_menu_btn_del',
+            'sys_role_btn1',
+            'sys_role_btn2',
+            'sys_role_btn3',
+            'sys_role_btn4',
+            'sys_role_btn5',
+            'sys_role_btn6',
+        ], //权限级别
     });
 
     //获取表格数据

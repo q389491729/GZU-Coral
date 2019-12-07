@@ -1,40 +1,24 @@
 <template>
-  <div class="login-container pull-height"
-       @keyup.enter.native="handleLogin">
+  <div class="login-container pull-height" @keyup.enter.native="handleLogin">
     <div class="login-logo animated fadeIn">
-      <img src="/svg/logo.svg"
-           alt="">
+      <img src="/svg/logo.svg" alt />
     </div>
     <div class="login-weaper">
       <div class="login-left animated fadeInLeft">
         <div class="login-info">
           <h2 class="login-info-title">{{website.info.title}}</h2>
           <ul class="login-info-list">
-            <li class="login-info-item"
-                v-for="(item,index) in website.info.list"
-                :key="index">
-              <i class="el-icon-check"></i>&nbsp;{{item}}
+            <li class="login-info-item" v-for="(item,index) in website.info.list" :key="index">
+              <i class="el-icon-check"></i>
+              &nbsp;{{item}}
             </li>
           </ul>
-          <el-button type="primary"
-                     size="small"
-                     class="login-index">首页</el-button>
         </div>
       </div>
-      <div class="login-border  animated fadeInRight">
+      <div class="login-border animated fadeInRight">
         <div class="login-main">
           <h4 class="login-title">登录 {{website.title}}</h4>
-          <userLogin v-if="activeName==='user'"></userLogin>
-          <codeLogin v-else-if="activeName==='code'"></codeLogin>
-          <thirdLogin v-else-if="activeName==='third'"></thirdLogin>
-        </div>
-        <div class="login-menu">
-          <a href="#"
-             @click.stop="activeName='user'">账号密码</a>
-          <a href="#"
-             @click.stop="activeName='code'">手机号登录</a>
-          <a href="#"
-             @click.stop="activeName='third'">第三方登录</a>
+          <userLogin></userLogin>
         </div>
       </div>
     </div>
@@ -42,46 +26,17 @@
 </template>
 <script>
 import userLogin from "./userlogin";
-import codeLogin from "./codelogin";
-import thirdLogin from "./thirdlogin";
 import topColor from "../index/top/top-color";
 import color from "@/mixins/color";
 import { mapGetters } from "vuex";
-import { validatenull } from '@/util/validate'
+import { validatenull } from "@/util/validate";
 export default {
   name: "login",
   mixins: [color()],
   components: {
     topColor,
-    userLogin,
-    codeLogin,
-    thirdLogin
+    userLogin
   },
-  data () {
-    return {
-      activeName: "user"
-    };
-  },
-  watch: {
-    $route () {
-      const params = this.$route.query
-      this.socialForm.state = params.state
-      this.socialForm.code = params.code
-      if (!validatenull(this.socialForm.state)) {
-        const loading = this.$loading({
-          lock: true,
-          text: `${this.socialForm.state === 'WX' ? '微信' : 'QQ'}登录中,请稍后。。。`,
-          spinner: 'el-icon-loading'
-        })
-        setTimeout(() => {
-          loading.close()
-        }, 2000)
-
-      }
-    }
-  },
-  created () { },
-  mounted () { },
   computed: {
     ...mapGetters(["website"])
   },

@@ -12,9 +12,11 @@ import { serialize } from '@/util/util'
 import { getToken } from '@/util/auth'
 import { Message } from 'element-ui'
 import website from '@/const/website';
+import { baseUrl } from '@/config/env'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 axios.defaults.timeout = 10000;
+axios.defaults.baseURL =  baseUrl;
 //返回其他状态吗
 axios.defaults.validateStatus = function(status) {
     return status >= 200 && status <= 500; // 默认的
@@ -49,7 +51,7 @@ axios.interceptors.response.use(res => {
     const statusWhiteList = website.statusWhiteList || [];
     const message = res.data.message || '未知错误';
     //如果请求为200则放过，否者默认统一处理,或者在website中配置statusWhiteList白名单自行处理
-    if (status !== 200 && !statusWhiteList.includes(status)) {
+    if ((status !== 200 && status !== 201 )  && !statusWhiteList.includes(status)) {
         Message({
             message: message,
             type: 'error'
@@ -60,10 +62,9 @@ axios.interceptors.response.use(res => {
     if (status === 401) store.dispatch('FedLogOut').then(() => router.push({ path: '/login' }));
 
     // 如果是白名单类型放入catch自行处理
-    if (status !== 200) return Promise.reject(res);
+    if (status !== 200 && status !== 201) return Promise.reject(res);
     return res;
 }, error => {
-    console.log(error);
     NProgress.done();
     return Promise.reject(new Error(error));
 })

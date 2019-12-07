@@ -6,6 +6,7 @@ export default {
   expand: true,
   refreshBtn: false,
   headerAlign: 'center',
+  rowKey:'time',
   column: [{
     label: '类型',
     prop: 'type',
@@ -18,7 +19,7 @@ export default {
     }]
   }, {
     label: '地址',
-    width: 200,
+    width: 300,
     prop: 'url',
     overHidden: true,
   }, {

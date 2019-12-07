@@ -26,14 +26,11 @@ module.exports = {
   },
   //配置转发代理
   devServer: {
-    // proxy: {
-    //     '/api': {
-    //         target: 'http://127.0.0.1:3000',
-    //         ws: true,
-    //         pathRewrite: {
-    //             '^/api': '/api'
-    //         }
-    //     },
-    // }
+    proxy: {
+        '/user': {
+            target: 'http://127.0.0.1:3000',
+            ws: true
+        }
+    }
   }
 }

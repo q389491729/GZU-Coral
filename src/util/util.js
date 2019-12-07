@@ -87,7 +87,6 @@ export const encryption = (params) => {
         param.forEach(ele => {
             result[ele] = window.CryptoJS.AES.encrypt(result[ele], key).toString();
         })
-
     }
     return result;
 };

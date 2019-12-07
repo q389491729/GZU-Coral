@@ -14,12 +14,10 @@ export const DIC = {
     }],
     SEX: [{
         label: '男',
-        value: 0,
-        color: 'green'
+        value: '男'
     }, {
         label: '女',
-        value: 1,
-        color: 'red'
+        value: '女'
     }],
     POSTIONDATA: [{
         label: '左对齐',
@@ -50,10 +48,10 @@ export const DIC = {
     ],
     STATE: [{
         label: '有效',
-        value: 0
+        value: true
     }, {
         label: '无效',
-        value: 1
+        value: false
     }],
     GRADE: [{
             label: "管理员",

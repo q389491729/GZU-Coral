@@ -49,7 +49,7 @@ export default {
     handleChange (item) {
       this.type = item.prop;
       this.handleWitch();
-    },
+    }
   }
 };
 </script>

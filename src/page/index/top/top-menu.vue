@@ -4,11 +4,12 @@
              mode="horizontal"
              text-color="#333">
       <template v-for="(item,index) in items">
-        <el-menu-item :index="item.parentId+''"
-                      @click.native="openMenu(item)"
+        <el-menu-item :index="(item.parentId+1)+''"
+                      @click.native="openMenu(item,index)"
                       :key="index">
           <template slot="title">
             <i :class="item.icon"></i>
+            <span>{{item.label}}</span>
           </template>
         </el-menu-item>
       </template>
@@ -23,7 +24,7 @@ export default {
   inject: ["index"],
   data () {
     return {
-      activeIndex: "0",
+      activeIndex: "2",
       items: []
     };
   },
@@ -39,7 +40,13 @@ export default {
     },
     getMenu () {
       this.$store.dispatch("GetTopMenu").then(res => {
-        this.items = res;
+        let result = JSON.parse(JSON.stringify(res))
+        for(let i = 0; i < result.length; i ++){
+          result[i].parentId = i + 1;
+          let path = this.$route.path
+          if(!path.indexOf(result[i].path.substr(0,4))) this.activeIndex = i+2+'';
+        }
+        this.items = result;
       });
     },
   }
